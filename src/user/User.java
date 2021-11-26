@@ -15,6 +15,7 @@ public class User {
     private Map<String, Integer> history;
     private ArrayList<String> moviesRated;
     private Map<String, ArrayList<Integer>> ratedSerials;
+    private int numberOfRatings;
 
 
     public User() {
@@ -24,6 +25,17 @@ public class User {
         this.history = new LinkedHashMap<>();
         this.moviesRated = new ArrayList<String>();
         this.ratedSerials = new LinkedHashMap<>();
+        this.numberOfRatings = 0;
+    }
+
+    public User (User user) {
+        this.username = user.username;
+        this.subscriptionType = user.subscriptionType;
+        this.favoriteMovies = user.favoriteMovies;
+        this.history = user.history;
+        this.moviesRated = user.moviesRated;
+        this.ratedSerials = user.ratedSerials;
+        this.numberOfRatings = user.numberOfRatings;
     }
 
     public User(UserInputData userData) {
@@ -33,6 +45,7 @@ public class User {
         this.history = userData.getHistory();
         this.moviesRated = new ArrayList<String>();
         this.ratedSerials = new LinkedHashMap<>();
+        this.numberOfRatings = 0;
 
     }
 
@@ -54,6 +67,14 @@ public class User {
 
     public Map<String, ArrayList<Integer>> getRatedSerials() {
         return ratedSerials;
+    }
+
+    public int getNumberOfRatings() {
+        return numberOfRatings;
+    }
+
+    public void setNumberOfRatings(int numberOfRatings) {
+        this.numberOfRatings = numberOfRatings;
     }
 
     @Override

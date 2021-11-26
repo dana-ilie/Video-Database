@@ -18,8 +18,6 @@ public class Rating extends Command {
 
 
     public String commandAction(ArrayList<User> users, ArrayList<Movie> movies, ArrayList<Serial> serials, ActionInputData action) {
-        // TODO Check if the videos were seen
-
         String message = super.commandAction(users, movies, serials, action);
         User user = new User();
 
@@ -32,88 +30,104 @@ public class Rating extends Command {
             }
         }
 
-
         /*
-         * rate a movie
+         * check if the video was seen
          */
-        if (action.getSeasonNumber() == 0) {
-            if (user.getMoviesRated().size() == 0) {
-                user.getMoviesRated().add(super.getVideoTitle());
+        int videoWasSeen = 0;
+        if (user.getHistory().get(super.getVideoTitle()) != null) {
+            videoWasSeen = 1;
+        }
 
-                for (Movie movie : movies) {
-                    if(movie.getTitle().equals(super.getVideoTitle())) {
-                        movie.getRatings().add(grade);
-                    }
-                }
-
-                message = "success -> " + super.getVideoTitle() + " was rated with " + grade + " by " + user.getUsername();
-            } else {
-                /*
-                 * check if the movie was rated
-                 */
-                int movieWasRated = 0;
-                for (String movieTitle : user.getMoviesRated()) {
-                    if (movieTitle.equals(super.getVideoTitle())) {
-                        message = "error -> " + movieTitle + " was already rated";
-                        movieWasRated = 1;
-                    }
-                }
-                if (movieWasRated == 0) {
+        if (videoWasSeen == 1) {
+            /*
+             * rate a movie
+             */
+            if (action.getSeasonNumber() == 0) {
+                if (user.getMoviesRated().size() == 0) {
                     user.getMoviesRated().add(super.getVideoTitle());
 
                     for (Movie movie : movies) {
                         if(movie.getTitle().equals(super.getVideoTitle())) {
                             movie.getRatings().add(grade);
+                            movie.setRating(movie.calculateRating());
                         }
                     }
 
+                    user.setNumberOfRatings(user.getNumberOfRatings() + 1);
                     message = "success -> " + super.getVideoTitle() + " was rated with " + grade + " by " + user.getUsername();
-                }
-            }
-        } else {
-            /*
-             * rate a tv show season
-             */
-            int seasonNumber = action.getSeasonNumber();
-            if (user.getRatedSerials().size() == 0 || user.getRatedSerials().get(super.getVideoTitle()) == null) {
-                ArrayList<Integer> ratedSeasons = new ArrayList<Integer>();
-                ratedSeasons.add(seasonNumber);
-                user.getRatedSerials().put(super.getVideoTitle(), ratedSeasons);
+                } else {
+                    /*
+                     * check if the movie was rated
+                     */
+                    int movieWasRated = 0;
+                    for (String movieTitle : user.getMoviesRated()) {
+                        if (movieTitle.equals(super.getVideoTitle())) {
+                            message = "error -> " + movieTitle + " was already rated";
+                            movieWasRated = 1;
+                        }
+                    }
+                    if (movieWasRated == 0) {
+                        user.getMoviesRated().add(super.getVideoTitle());
 
-                for (Serial serial : serials) {
-                    if (serial.getTitle().equals(super.getVideoTitle())) {
-                        serial.getSeasons().get(seasonNumber - 1).getRatings().add(grade);
+                        for (Movie movie : movies) {
+                            if(movie.getTitle().equals(super.getVideoTitle())) {
+                                movie.getRatings().add(grade);
+                                movie.setRating(movie.calculateRating());
+                            }
+                        }
+
+                        user.setNumberOfRatings(user.getNumberOfRatings() + 1);
+                        message = "success -> " + super.getVideoTitle() + " was rated with " + grade + " by " + user.getUsername();
                     }
                 }
-
-                message = "success -> " + super.getVideoTitle() + " was rated with " + grade + " by " + super.getUsername();
             } else {
                 /*
-                 * check if the season was rated
+                 * rate a tv show season
                  */
-                int seasonWasRated = 0;
-                for (Integer seasonNr : user.getRatedSerials().get(super.getVideoTitle())) {
-                    if (seasonNr.equals(seasonNumber)) {
-                        seasonWasRated = 1;
-                        break;
-                    }
-                }
+                int seasonNumber = action.getSeasonNumber();
+                if (user.getRatedSerials().size() == 0 || user.getRatedSerials().get(super.getVideoTitle()) == null) {
+                    ArrayList<Integer> ratedSeasons = new ArrayList<Integer>();
+                    ratedSeasons.add(seasonNumber);
+                    user.getRatedSerials().put(super.getVideoTitle(), ratedSeasons);
 
-                if (seasonWasRated == 1) {
-                    message = "error -> " + super.getVideoTitle() + " was already rated";
-                } else {
-                    user.getRatedSerials().get(super.getVideoTitle()).add(seasonNumber);
                     for (Serial serial : serials) {
                         if (serial.getTitle().equals(super.getVideoTitle())) {
                             serial.getSeasons().get(seasonNumber - 1).getRatings().add(grade);
                         }
                     }
 
+                    user.setNumberOfRatings(user.getNumberOfRatings() + 1);
                     message = "success -> " + super.getVideoTitle() + " was rated with " + grade + " by " + super.getUsername();
+                } else {
+                    /*
+                     * check if the season was rated
+                     */
+                    int seasonWasRated = 0;
+                    for (Integer seasonNr : user.getRatedSerials().get(super.getVideoTitle())) {
+                        if (seasonNr.equals(seasonNumber)) {
+                            seasonWasRated = 1;
+                            break;
+                        }
+                    }
+
+                    if (seasonWasRated == 1) {
+                        message = "error -> " + super.getVideoTitle() + " was already rated";
+                    } else {
+                        user.getRatedSerials().get(super.getVideoTitle()).add(seasonNumber);
+                        for (Serial serial : serials) {
+                            if (serial.getTitle().equals(super.getVideoTitle())) {
+                                serial.getSeasons().get(seasonNumber - 1).getRatings().add(grade);
+                            }
+                        }
+
+                        user.setNumberOfRatings(user.getNumberOfRatings() + 1);
+                        message = "success -> " + super.getVideoTitle() + " was rated with " + grade + " by " + super.getUsername();
+                    }
                 }
             }
+        } else {
+            message = "error -> " + super.getVideoTitle() + " is not seen";
         }
-
 
         return message;
     }

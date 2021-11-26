@@ -11,6 +11,7 @@ import entertainment.Video;
 import fileio.*;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import queries.Query;
 import user.User;
 
 import java.io.IOException;
@@ -69,6 +70,20 @@ public class Solver {
                     }
                 }
             } else if (action.getActionType().equals("query")) {
+                String objectType = action.getObjectType();
+                int number = action.getNumber();
+                String sortType = action.getSortType();
+                List<List<String>> filters = action.getFilters();
+                String criteria = action.getCriteria();
+
+                Query query = new Query(objectType, number, sortType, filters, criteria);
+                String message = query.queryAction(users, movies, serials);
+                try {
+                    JSONObject object = fileWriter.writeFile(action.getActionId(), "", message);
+                    arrayResult.add(object);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
             } else if (action.getActionType().equals("recommendation")) {
 
