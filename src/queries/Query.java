@@ -6,6 +6,7 @@ import entertainment.Serial;
 import entertainment.Video;
 import user.User;
 import java.util.*;
+import java.util.function.Predicate;
 
 import static utils.Utils.stringToAwards;
 
@@ -124,6 +125,82 @@ public class Query {
         return sortedActors;
     }
 
+    private List<Video> filterVideo(ArrayList<? extends Video> videos) {
+        List<Video> filteredVideos = new ArrayList<>();
+        for (Video video : videos) {
+            filteredVideos.add(new Video(video));
+        }
+
+        if (filters != null && filters.size() != 0) {
+            Predicate<Video> videoIsFromYears = video -> {
+                boolean isFromYears = false;
+                for (String year : filters.get(0)) {
+                    if (String.valueOf(video.getYear()).equals(year)) {
+                        isFromYears = true;
+                        break;
+                    }
+                }
+                return isFromYears;
+            };
+
+            Predicate<Video> hasGenre = video -> {
+                boolean has = false;
+
+                for (String genre : filters.get(1)) {
+                    for (String videoGenre : video.getGenres()) {
+                        if (videoGenre.equals(genre)) {
+                            has = true;
+                            break;
+                        }
+                    }
+                }
+
+                return has;
+            };
+
+            if (filters.get(0) != null && filters.get(0).size() != 0) {
+                filteredVideos = filteredVideos.stream().filter(videoIsFromYears).toList();
+            }
+
+            if (filters.get(1) != null && filters.get(1).size() != 0) {
+                filteredVideos = filteredVideos.stream().filter(hasGenre).toList();
+            }
+        }
+
+
+        return filteredVideos;
+    }
+
+    private List<Video> videosSortedByRating (List<? extends Video> videos) {
+        List<Video> sortedVideos = new ArrayList<>();
+        for (Video video : videos) {
+            sortedVideos.add(new Video(video));
+        }
+
+        if (sortType.equals("asc")) {
+            sortedVideos.sort(new VideoRatingSorterAsc());
+        } else {
+            sortedVideos.sort(new VideoRatingSorterDesc());
+        }
+
+        return sortedVideos;
+    }
+
+    private List<Video> videosSortedByFavorite(List<? extends Video> videos) {
+        List<Video> sortedVideos = new ArrayList<>();
+        for (Video video : videos) {
+            sortedVideos.add(new Video(video));
+        }
+
+        if (sortType.equals("asc")) {
+            sortedVideos.sort(new VideoFavoriteSorterAsc());
+        } else {
+            sortedVideos.sort(new VideoFavoriteSorterDesc());
+        }
+
+        return sortedVideos;
+    }
+
     public String queryAction(ArrayList<User> users, ArrayList<Movie> movies,
                               ArrayList<Serial> serials,
                               ArrayList<Actor> actors) {
@@ -185,14 +262,48 @@ public class Query {
                 message = "Query result: " + actorNames;
             }
         } else if (criteria.equals("ratings")) {
-            if (objectType.equals("movies")) {
+            List<Video> filteredVideos = new ArrayList<>();
 
+            if (objectType.equals("movies")) {
+                filteredVideos = filterVideo(movies);
 
             } else if (objectType.equals("shows")) {
+                filteredVideos = filterVideo(serials);
 
             }
+            List<Video> sortedVideos = videosSortedByRating(filteredVideos);
+            List<String> videoNames = new ArrayList<>();
+
+            int i = 0;
+            for (Video video : sortedVideos) {
+                if (i < number && video.getRating() > 0) {
+                    videoNames.add(video.getTitle());
+                }
+                i++;
+            }
+
+            message = "Query result: " + videoNames;
 
         } else if (criteria.equals("favorite")) {
+            List<Video> filteredVideos = new ArrayList<>();
+
+            if (objectType.equals("movies")) {
+                filteredVideos = filterVideo(movies);
+            } else if (objectType.equals("shows")) {
+                filteredVideos = filterVideo(serials);
+            }
+            List<Video> sortedVideos = videosSortedByFavorite(filteredVideos);
+            List<String> videoNames = new ArrayList<>();
+
+            int i = 0;
+            for (Video video : sortedVideos) {
+                if (i < number && video.getTimesWasAddedToFavorite() != 0) {
+                    videoNames.add(video.getTitle());
+                }
+                i++;
+            }
+
+            message = "Query result: " + videoNames;
 
         } else if (criteria.equals("longest")) {
 

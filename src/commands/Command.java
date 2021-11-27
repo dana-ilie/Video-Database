@@ -1,5 +1,6 @@
 package commands;
 
+import database.Database;
 import entertainment.Movie;
 import entertainment.Serial;
 import fileio.ActionInputData;
@@ -22,7 +23,7 @@ public class Command {
         return username;
     }
 
-    public String commandAction(ArrayList<User> users) {
+    public String commandAction(Database database) {
         return new String("Command Message");
     }
 

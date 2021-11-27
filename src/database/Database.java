@@ -37,6 +37,7 @@ public class Database {
         for (ActorInputData actor : input.getActors()) {
             actors.add(new Actor(actor));
         }
+        setAddedToFavoriteTimes();
     }
 
     public void setActorsAverage(){
@@ -64,6 +65,28 @@ public class Database {
 
             avg = avg / totalVideos;
             actor.setAverage(avg);
+        }
+    }
+
+    public void setAddedToFavoriteTimes() {
+        for (User user : users) {
+            for (String favorite : user.getFavoriteMovies()) {
+                incVideoFavoriteTimes(favorite);
+            }
+        }
+    }
+
+    public void incVideoFavoriteTimes(String videoTitle) {
+        for (Movie movie : movies) {
+            if (movie.getTitle().equals(videoTitle)) {
+                movie.setTimesWasAddedToFavorite(movie.getTimesWasAddedToFavorite() + 1);
+            }
+        }
+
+        for (Serial serial : serials) {
+            if (serial.getTitle().equals(videoTitle)) {
+                serial.setTimesWasAddedToFavorite(serial.getTimesWasAddedToFavorite() + 1);
+            }
         }
     }
 

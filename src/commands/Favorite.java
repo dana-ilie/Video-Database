@@ -1,5 +1,6 @@
 package commands;
 
+import database.Database;
 import user.User;
 
 import java.util.ArrayList;
@@ -11,7 +12,8 @@ public class Favorite extends Command {
         super("favorite", username, videoTitle);
     }
 
-    public String commandAction(ArrayList<User> users) {
+    public String commandAction(Database database) {
+        ArrayList<User> users = database.getUsers();
         String message = "";
 
         for (User user : users) {
@@ -29,6 +31,7 @@ public class Favorite extends Command {
                         message = "error -> " + super.getVideoTitle() + " is already in favourite list";
                     } else {
                         user.getFavoriteMovies().add(super.getVideoTitle());
+                        database.incVideoFavoriteTimes(super.getVideoTitle());
                         message = "success -> " + super.getVideoTitle() + " was added as favourite";
                     }
 

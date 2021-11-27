@@ -8,13 +8,11 @@ import java.util.List;
 public class Movie extends Video{
     private int duration;
     private List<Double> ratings;
-    private Double rating;
 
     public Movie(MovieInputData movieData) {
         super(movieData.getTitle(), movieData.getYear(), movieData.getCast(), movieData.getGenres());
         this.duration = movieData.getDuration();
         this.ratings = new ArrayList<>();
-        this.rating = 0.0;
     }
 
     public Double calculateRating() {
@@ -34,11 +32,4 @@ public class Movie extends Video{
         return ratings;
     }
 
-    public Double getRating() {
-        return rating;
-    }
-
-    public void setRating(Double rating) {
-        this.rating = rating;
-    }
 }

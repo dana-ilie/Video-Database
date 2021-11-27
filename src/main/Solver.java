@@ -35,7 +35,7 @@ public class Solver {
             if (action.getActionType().equals("command")) {
                 if (action.getType().equals("favorite")) {
                     Command favorite = new Favorite(action.getUsername(), action.getTitle());
-                    String message = favorite.commandAction(users);
+                    String message = favorite.commandAction(database);
                     try {
                         JSONObject object = fileWriter.writeFile(action.getActionId(), "", message);
                         arrayResult.add(object);
@@ -44,7 +44,7 @@ public class Solver {
                     }
                 } else if (action.getType().equals("view")) {
                     Command view = new View(action.getUsername(), action.getTitle());
-                    String message = view.commandAction(users);
+                    String message = view.commandAction(database);
                     try {
                         JSONObject object = fileWriter.writeFile(action.getActionId(), "", message);
                         arrayResult.add(object);

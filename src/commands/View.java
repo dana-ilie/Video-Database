@@ -1,5 +1,6 @@
 package commands;
 
+import database.Database;
 import user.User;
 
 import java.util.ArrayList;
@@ -10,8 +11,9 @@ public class View extends Command {
     }
 
     @Override
-    public String commandAction(ArrayList<User> users) {
-        String message = super.commandAction(users);
+    public String commandAction(Database database) {
+        ArrayList<User> users = database.getUsers();
+        String message = super.commandAction(database);
         int nrViews = 0;
 
         for (User user : users) {
