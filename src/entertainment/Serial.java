@@ -12,6 +12,16 @@ public class Serial extends Video{
         super(serialData.getTitle(), serialData.getYear(), serialData.getCast(), serialData.getGenres());
         this.numberOfSeasons = serialData.getNumberSeason();
         this.seasons = serialData.getSeasons();
+        super.totalDuration = calculateDuration();
+    }
+
+    public int calculateDuration() {
+        int duration = 0;
+        for (Season season : seasons) {
+            duration += season.getDuration();
+        }
+
+        return duration;
     }
 
     public Double calculateRating() {

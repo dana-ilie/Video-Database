@@ -1,5 +1,6 @@
 package commands;
 
+import database.Database;
 import entertainment.Movie;
 import entertainment.Serial;
 import entertainment.Video;
@@ -17,8 +18,12 @@ public class Rating extends Command {
     }
 
 
-    public String commandAction(ArrayList<User> users, ArrayList<Movie> movies, ArrayList<Serial> serials, ActionInputData action) {
-        String message = super.commandAction(users, movies, serials, action);
+    public String commandAction(Database database, ActionInputData action) {
+        ArrayList<User> users = database.getUsers();
+        ArrayList<Movie> movies = database.getMovies();
+        ArrayList<Serial> serials = database.getSerials();
+
+        String message = super.commandAction(database, action);
         User user = new User();
 
         /*
@@ -50,6 +55,7 @@ public class Rating extends Command {
                         if(movie.getTitle().equals(super.getVideoTitle())) {
                             movie.getRatings().add(grade);
                             movie.setRating(movie.calculateRating());
+                            database.setActorsAverage();
                         }
                     }
 
@@ -73,6 +79,7 @@ public class Rating extends Command {
                             if(movie.getTitle().equals(super.getVideoTitle())) {
                                 movie.getRatings().add(grade);
                                 movie.setRating(movie.calculateRating());
+                                database.setActorsAverage();
                             }
                         }
 
@@ -94,6 +101,7 @@ public class Rating extends Command {
                         if (serial.getTitle().equals(super.getVideoTitle())) {
                             serial.getSeasons().get(seasonNumber - 1).getRatings().add(grade);
                             serial.setRating(serial.calculateRating());
+                            database.setActorsAverage();
                         }
                     }
 
@@ -119,6 +127,7 @@ public class Rating extends Command {
                             if (serial.getTitle().equals(super.getVideoTitle())) {
                                 serial.getSeasons().get(seasonNumber - 1).getRatings().add(grade);
                                 serial.setRating(serial.calculateRating());
+                                database.setActorsAverage();
                             }
                         }
 

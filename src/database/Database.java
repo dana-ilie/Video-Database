@@ -9,6 +9,7 @@ import user.User;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class Database {
     private ArrayList<Actor> actors;
@@ -37,7 +38,42 @@ public class Database {
         for (ActorInputData actor : input.getActors()) {
             actors.add(new Actor(actor));
         }
+        setActorsAverage();
         setAddedToFavoriteTimes();
+        calculateViews();
+    }
+
+    public void calculateViews() {
+        for (User user : users) {
+            for (Map.Entry<String, Integer> entry : user.getHistory().entrySet()) {
+                // find video
+                for (Movie movie : movies) {
+                    if (entry.getKey().equals(movie.getTitle())) {
+                        // increment movie views
+                        movie.setViews(movie.getViews() + entry.getValue());
+                    }
+                }
+                for (Serial serial : serials) {
+                    if (entry.getKey().equals(serial.getTitle())) {
+                        // increment serial views
+                        serial.setViews(serial.getViews() + entry.getValue());
+                    }
+                }
+            }
+        }
+    }
+
+    public void viewVideo(String videoTitle) {
+        for (Movie movie : movies) {
+            if (movie.getTitle().equals(videoTitle)) {
+                movie.setViews(movie.getViews() + 1);
+            }
+        }
+        for (Serial serial : serials) {
+            if (serial.getTitle().equals(videoTitle)) {
+                serial.setViews(serial.getViews() + 1);
+            }
+        }
     }
 
     public void setActorsAverage(){
@@ -63,8 +99,12 @@ public class Database {
                 }
             }
 
-            avg = avg / totalVideos;
-            actor.setAverage(avg);
+            if (totalVideos != 0) {
+                avg = avg / totalVideos;
+                actor.setAverage(avg);
+            } else {
+                avg = 0.0;
+            }
         }
     }
 

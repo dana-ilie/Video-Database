@@ -9,6 +9,8 @@ public class Video {
     private ArrayList<String> genres;
     private Double rating;
     int timesWasAddedToFavorite;
+    int totalDuration;
+    int views;
 
     public Video(Video video) {
         this.title = video.getTitle();
@@ -17,16 +19,34 @@ public class Video {
         this.genres = video.getGenres();
         this.rating = video.getRating();
         this.timesWasAddedToFavorite = video.getTimesWasAddedToFavorite();
+        this.totalDuration = video.getTotalDuration();
+        this.views = video.getViews();
     }
 
     public Video(final String title, final int year,
-                 final ArrayList<String> cast, final ArrayList<String> genres) {
+                 final ArrayList<String> cast,
+                 final ArrayList<String> genres,
+                 final int totalDuration) {
         this.title = title;
         this.year = year;
         this.cast = cast;
         this.genres = genres;
         this.rating = 0.0;
         this.timesWasAddedToFavorite = 0;
+        this.totalDuration = totalDuration;
+        this.views = 0;
+    }
+
+    public Video(final String title, final int year,
+                 final ArrayList<String> cast,
+                 final ArrayList<String> genres) {
+        this.title = title;
+        this.year = year;
+        this.cast = cast;
+        this.genres = genres;
+        this.rating = 0.0;
+        this.timesWasAddedToFavorite = 0;
+        this.views = 0;
     }
 
     public Double calculateRating() {
@@ -63,5 +83,17 @@ public class Video {
 
     public void setTimesWasAddedToFavorite(int timesWasAddedToFavorite) {
         this.timesWasAddedToFavorite = timesWasAddedToFavorite;
+    }
+
+    public int getTotalDuration() {
+        return totalDuration;
+    }
+
+    public int getViews() {
+        return views;
+    }
+
+    public void setViews(int views) {
+        this.views = views;
     }
 }

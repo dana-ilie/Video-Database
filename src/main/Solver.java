@@ -53,7 +53,7 @@ public class Solver {
                     }
                 } else if (action.getType().equals("rating")) {
                     Command rating = new Rating(action.getUsername(), action.getTitle(), action.getGrade());
-                    String message = rating.commandAction(users, movies, serials, action);
+                    String message = rating.commandAction(database, action);
                     database.setActorsAverage();
                     try {
                         JSONObject object = fileWriter.writeFile(action.getActionId(), "", message);

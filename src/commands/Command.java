@@ -31,7 +31,7 @@ public class Command {
         return videoTitle;
     }
 
-    public String commandAction(ArrayList<User> users, ArrayList<Movie> movies, ArrayList<Serial> serials, ActionInputData action) {
+    public String commandAction(Database database, ActionInputData action) {
         return new String("Rating command message");
     }
 }

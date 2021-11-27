@@ -80,6 +80,7 @@ public class Query {
                 // check if actor description has all words
                 int descriptionHasAllWords = 1;
                 for (String word : filters.get(2)) {
+                    word = " " + word + " ";
                     if (!actor.getCareerDescription().toLowerCase().contains(word.toLowerCase())) {
                         descriptionHasAllWords = 0;
                         break;
@@ -158,11 +159,11 @@ public class Query {
                 return has;
             };
 
-            if (filters.get(0) != null && filters.get(0).size() != 0) {
+            if (filters.get(0) != null && filters.get(0).get(0) != null) {
                 filteredVideos = filteredVideos.stream().filter(videoIsFromYears).toList();
             }
 
-            if (filters.get(1) != null && filters.get(1).size() != 0) {
+            if (filters.get(1) != null && filters.get(1).get(0) != null) {
                 filteredVideos = filteredVideos.stream().filter(hasGenre).toList();
             }
         }
@@ -201,6 +202,36 @@ public class Query {
         return sortedVideos;
     }
 
+    private List<Video> videosSortedByDuration(List<? extends Video> videos) {
+        List<Video> sortedVideos = new ArrayList<>();
+        for (Video video : videos) {
+            sortedVideos.add(new Video(video));
+        }
+
+        if (sortType.equals("asc")) {
+            sortedVideos.sort(new VideoDurationSorterAsc());
+        } else {
+            sortedVideos.sort(new VideoDurationSorterDesc());
+        }
+
+        return sortedVideos;
+    }
+
+    private List<Video> videosSortedByViews(List<? extends Video> videos) {
+        List<Video> sortedVideos = new ArrayList<>();
+        for (Video video : videos) {
+            sortedVideos.add(new Video(video));
+        }
+
+        if (sortType.equals("asc")) {
+            sortedVideos.sort(new VideoViewsSorterAsc());
+        } else {
+            sortedVideos.sort(new VideoViewsSorterDesc());
+        }
+
+        return sortedVideos;
+    }
+
     public String queryAction(ArrayList<User> users, ArrayList<Movie> movies,
                               ArrayList<Serial> serials,
                               ArrayList<Actor> actors) {
@@ -213,8 +244,8 @@ public class Query {
             for (User user : sortedUsers) {
                 if (i < number && user.getNumberOfRatings() > 0) {
                     usernames.add(user.getUsername());
+                    i++;
                 }
-                i++;
             }
 
             message = "Query result: " + usernames;
@@ -227,8 +258,8 @@ public class Query {
                 for (Actor actor : sortedActors) {
                     if (i < number && actor.getAverage() > 0) {
                         actorNames.add(actor.getName());
+                        i++;
                     }
-                    i++;
                 }
 
                 message = "Query result: " + actorNames;
@@ -241,8 +272,8 @@ public class Query {
                 for (Actor actor : sortedActors) {
                     if (i < number && actor.getNumberOfAwards() > 0) {
                         actorNames.add(actor.getName());
+                        i++;
                     }
-                    i++;
                 }
 
                 message = "Query result: " + actorNames;
@@ -255,8 +286,8 @@ public class Query {
                 for (Actor actor : sortedActors) {
                     if (i < number) {
                         actorNames.add(actor.getName());
+                        i++;
                     }
-                    i++;
                 }
 
                 message = "Query result: " + actorNames;
@@ -278,8 +309,8 @@ public class Query {
             for (Video video : sortedVideos) {
                 if (i < number && video.getRating() > 0) {
                     videoNames.add(video.getTitle());
+                    i++;
                 }
-                i++;
             }
 
             message = "Query result: " + videoNames;
@@ -299,16 +330,55 @@ public class Query {
             for (Video video : sortedVideos) {
                 if (i < number && video.getTimesWasAddedToFavorite() != 0) {
                     videoNames.add(video.getTitle());
+                    i++;
                 }
-                i++;
             }
 
             message = "Query result: " + videoNames;
 
         } else if (criteria.equals("longest")) {
+            List<Video> filteredVideos = new ArrayList<>();
+
+            if (objectType.equals("movies")) {
+                filteredVideos = filterVideo(movies);
+            } else if (objectType.equals("shows")) {
+                filteredVideos = filterVideo(serials);
+            }
+
+            List<Video> sortedVideos = videosSortedByDuration(filteredVideos);
+            List<String> videoNames = new ArrayList<>();
+
+            int i = 0;
+            for (Video video : sortedVideos) {
+                if (i < number && video.getTotalDuration() != 0) {
+                    videoNames.add(video.getTitle());
+                    i++;
+                }
+            }
+
+            message = "Query result: " + videoNames;
 
         } else if (criteria.equals("most_viewed")) {
+            List<Video> filteredVideos = new ArrayList<>();
 
+            if (objectType.equals("movies")) {
+                filteredVideos = filterVideo(movies);
+            } else if (objectType.equals("shows")) {
+                filteredVideos = filterVideo(serials);
+            }
+
+            List<Video> sortedVideos = videosSortedByViews(filteredVideos);
+            List<String> videoNames = new ArrayList<>();
+
+            int i = 0;
+            for (Video video : sortedVideos) {
+                if (i < number && video.getViews() != 0) {
+                    videoNames.add(video.getTitle());
+                    i++;
+                }
+            }
+
+            message = "Query result: " + videoNames;
         }
 
         return message;

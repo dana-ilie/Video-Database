@@ -29,13 +29,13 @@ public class User {
     }
 
     public User (User user) {
-        this.username = user.username;
-        this.subscriptionType = user.subscriptionType;
-        this.favoriteMovies = user.favoriteMovies;
-        this.history = user.history;
-        this.moviesRated = user.moviesRated;
-        this.ratedSerials = user.ratedSerials;
-        this.numberOfRatings = user.numberOfRatings;
+        this.username = user.getUsername();
+        this.subscriptionType = user.getSubscriptionType();
+        this.favoriteMovies = user.getFavoriteMovies();
+        this.history = user.getHistory();
+        this.moviesRated = user.getMoviesRated();
+        this.ratedSerials = user.getRatedSerials();
+        this.numberOfRatings = user.getNumberOfRatings();
     }
 
     public User(UserInputData userData) {
@@ -75,6 +75,10 @@ public class User {
 
     public void setNumberOfRatings(int numberOfRatings) {
         this.numberOfRatings = numberOfRatings;
+    }
+
+    public String getSubscriptionType() {
+        return subscriptionType;
     }
 
     @Override

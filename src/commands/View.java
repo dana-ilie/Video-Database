@@ -25,6 +25,7 @@ public class View extends Command {
                     String key = super.getVideoTitle();
                     int value = user.getHistory().get(key);
                     user.getHistory().put(key, value + 1);
+                    database.viewVideo(super.getVideoTitle());
                     nrViews = user.getHistory().get(super.getVideoTitle());
                 } else {
                     /*
@@ -32,6 +33,7 @@ public class View extends Command {
                      */
                     String key = super.getVideoTitle();
                     user.getHistory().put(key, 1);
+                    database.viewVideo(super.getVideoTitle());
                     nrViews = 1;
                 }
             }
