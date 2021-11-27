@@ -1,19 +1,20 @@
 package main;
 
+import actor.Actor;
 import commands.Command;
 import commands.Favorite;
 import commands.Rating;
 import commands.View;
-import common.Constants;
+import database.Database;
 import entertainment.Movie;
 import entertainment.Serial;
-import entertainment.Video;
 import fileio.*;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import queries.Query;
 import user.User;
 
+import javax.lang.model.type.ArrayType;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,21 +24,12 @@ import java.util.List;
 public class Solver {
 
     public static JSONArray solve(Input input, Writer fileWriter, JSONArray arrayResult) {
-        List<ActionInputData> actions = input.getCommands();
-        ArrayList<User> users = new ArrayList<User>();
-        for (UserInputData user : input.getUsers()) {
-            users.add(new User(user));
-        }
-
-        ArrayList<Movie> movies = new ArrayList<Movie>();
-        for (MovieInputData movie : input.getMovies()) {
-            movies.add(new Movie((movie)));
-        }
-
-        ArrayList<Serial> serials = new ArrayList<Serial>();
-        for (SerialInputData serial : input.getSerials()) {
-            serials.add(new Serial(serial));
-        }
+        Database database = new Database(input);
+        ArrayList<User> users = database.getUsers();
+        ArrayList<Movie> movies = database.getMovies();
+        ArrayList<Serial> serials = database.getSerials();
+        ArrayList<Actor> actors = database.getActors();
+        List<ActionInputData> actions = database.getActions();
 
         for (ActionInputData action : actions) {
             if (action.getActionType().equals("command")) {
@@ -62,6 +54,7 @@ public class Solver {
                 } else if (action.getType().equals("rating")) {
                     Command rating = new Rating(action.getUsername(), action.getTitle(), action.getGrade());
                     String message = rating.commandAction(users, movies, serials, action);
+                    database.setActorsAverage();
                     try {
                         JSONObject object = fileWriter.writeFile(action.getActionId(), "", message);
                         arrayResult.add(object);
@@ -77,7 +70,7 @@ public class Solver {
                 String criteria = action.getCriteria();
 
                 Query query = new Query(objectType, number, sortType, filters, criteria);
-                String message = query.queryAction(users, movies, serials);
+                String message = query.queryAction(users, movies, serials, actors);
                 try {
                     JSONObject object = fileWriter.writeFile(action.getActionId(), "", message);
                     arrayResult.add(object);

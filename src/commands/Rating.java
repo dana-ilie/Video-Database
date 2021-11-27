@@ -62,7 +62,7 @@ public class Rating extends Command {
                     int movieWasRated = 0;
                     for (String movieTitle : user.getMoviesRated()) {
                         if (movieTitle.equals(super.getVideoTitle())) {
-                            message = "error -> " + movieTitle + " was already rated";
+                            message = "error -> " + movieTitle + " has been already rated";
                             movieWasRated = 1;
                         }
                     }
@@ -93,6 +93,7 @@ public class Rating extends Command {
                     for (Serial serial : serials) {
                         if (serial.getTitle().equals(super.getVideoTitle())) {
                             serial.getSeasons().get(seasonNumber - 1).getRatings().add(grade);
+                            serial.setRating(serial.calculateRating());
                         }
                     }
 
@@ -111,12 +112,13 @@ public class Rating extends Command {
                     }
 
                     if (seasonWasRated == 1) {
-                        message = "error -> " + super.getVideoTitle() + " was already rated";
+                        message = "error -> " + super.getVideoTitle() + " has been already rated";
                     } else {
                         user.getRatedSerials().get(super.getVideoTitle()).add(seasonNumber);
                         for (Serial serial : serials) {
                             if (serial.getTitle().equals(super.getVideoTitle())) {
                                 serial.getSeasons().get(seasonNumber - 1).getRatings().add(grade);
+                                serial.setRating(serial.calculateRating());
                             }
                         }
 
