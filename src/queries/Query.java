@@ -4,6 +4,7 @@ import actor.Actor;
 import entertainment.Movie;
 import entertainment.Serial;
 import entertainment.Video;
+import sort.*;
 import user.User;
 import java.util.*;
 import java.util.function.Predicate;
@@ -11,11 +12,11 @@ import java.util.function.Predicate;
 import static utils.Utils.stringToAwards;
 
 public class Query {
-    private int number;
-    private String objectType;
-    private String sortType;
+    private final int number;
+    private final String objectType;
+    private final String sortType;
     private List<List<String>> filters = new ArrayList<>();
-    private String criteria;
+    private final String criteria;
 
     public Query(String objType, int nr, String sType, List<List<String>> filters, String criteria) {
         this.objectType = objType;
@@ -80,10 +81,20 @@ public class Query {
                 // check if actor description has all words
                 int descriptionHasAllWords = 1;
                 for (String word : filters.get(2)) {
-                    word = " " + word + " ";
-                    if (!actor.getCareerDescription().toLowerCase().contains(word.toLowerCase())) {
-                        descriptionHasAllWords = 0;
-                        break;
+                    String word1 = " " + word + " ";
+                    String word2 = " " + word + ",";
+                    String word3 = " " + word + ".";
+                    String word4 = "-" + word + " ";
+
+                    if (!actor.getCareerDescription().toLowerCase().contains(word1.toLowerCase())) {
+                        if (!actor.getCareerDescription().toLowerCase().contains(word2.toLowerCase())) {
+                            if (!actor.getCareerDescription().toLowerCase().contains(word3.toLowerCase())) {
+                                if (!actor.getCareerDescription().toLowerCase().contains(word4.toLowerCase())) {
+                                    descriptionHasAllWords = 0;
+                                    break;
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -172,21 +183,6 @@ public class Query {
         return filteredVideos;
     }
 
-    private List<Video> videosSortedByRating (List<? extends Video> videos) {
-        List<Video> sortedVideos = new ArrayList<>();
-        for (Video video : videos) {
-            sortedVideos.add(new Video(video));
-        }
-
-        if (sortType.equals("asc")) {
-            sortedVideos.sort(new VideoRatingSorterAsc());
-        } else {
-            sortedVideos.sort(new VideoRatingSorterDesc());
-        }
-
-        return sortedVideos;
-    }
-
     private List<Video> videosSortedByFavorite(List<? extends Video> videos) {
         List<Video> sortedVideos = new ArrayList<>();
         for (Video video : videos) {
@@ -236,6 +232,7 @@ public class Query {
                               ArrayList<Serial> serials,
                               ArrayList<Actor> actors) {
         String message = "";
+
         if (objectType.equals("users")) {
             ArrayList<User> sortedUsers = usersSortedByRatings(users);
             ArrayList<String> usernames = new ArrayList<>();
@@ -302,7 +299,8 @@ public class Query {
                 filteredVideos = filterVideo(serials);
 
             }
-            List<Video> sortedVideos = videosSortedByRating(filteredVideos);
+            Sorter sorter = new Sorter(sortType);
+            List<Video> sortedVideos = sorter.videosSortedByRating(filteredVideos);
             List<String> videoNames = new ArrayList<>();
 
             int i = 0;

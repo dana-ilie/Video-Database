@@ -3,10 +3,10 @@ package entertainment;
 import java.util.ArrayList;
 
 public class Video {
-    private String title;
-    private int year;
-    private ArrayList<String> cast;
-    private ArrayList<String> genres;
+    private final String title;
+    private final int year;
+    private final ArrayList<String> cast;
+    private final ArrayList<String> genres;
     private Double rating;
     int timesWasAddedToFavorite;
     int totalDuration;

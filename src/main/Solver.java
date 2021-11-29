@@ -12,6 +12,7 @@ import fileio.*;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import queries.Query;
+import recommendations.Recommendation;
 import user.User;
 
 import javax.lang.model.type.ArrayType;
@@ -77,13 +78,21 @@ public class Solver {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
             } else if (action.getActionType().equals("recommendation")) {
+                String type = action.getType();
+                String username = action.getUsername();
+                String genre = action.getGenre();
 
+                Recommendation recommendation = new Recommendation(type, username, genre);
+                String message = recommendation.recommend(users, movies, serials);
+                try {
+                    JSONObject object = fileWriter.writeFile(action.getActionId(), "", message);
+                    arrayResult.add(object);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
-
-
 
         return arrayResult;
     }
