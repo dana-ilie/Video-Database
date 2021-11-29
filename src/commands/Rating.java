@@ -3,22 +3,26 @@ package commands;
 import database.Database;
 import entertainment.Movie;
 import entertainment.Serial;
-import entertainment.Video;
 import fileio.ActionInputData;
 import user.User;
 
 import java.util.ArrayList;
 
 public class Rating extends Command {
-    private double grade;
+    private final Double grade;
 
-    public Rating(String username, String videoTitle, double grade) {
-        super("rating", username, videoTitle);
+    public Rating(final String username, final String videoTitle, final Double grade) {
+        super(username, videoTitle);
         this.grade = grade;
     }
 
 
-    public String commandAction(Database database, ActionInputData action) {
+    /**
+     * @param database database with all users, actors, actions, movies, serials
+     * @param action the action to be performed data
+     * @return result message
+     */
+    public String commandAction(final Database database, final ActionInputData action) {
         ArrayList<User> users = database.getUsers();
         ArrayList<Movie> movies = database.getMovies();
         ArrayList<Serial> serials = database.getSerials();
@@ -49,18 +53,7 @@ public class Rating extends Command {
              */
             if (action.getSeasonNumber() == 0) {
                 if (user.getMoviesRated().size() == 0) {
-                    user.getMoviesRated().add(super.getVideoTitle());
-
-                    for (Movie movie : movies) {
-                        if(movie.getTitle().equals(super.getVideoTitle())) {
-                            movie.getRatings().add(grade);
-                            movie.setRating(movie.calculateRating());
-                            database.setActorsAverage();
-                        }
-                    }
-
-                    user.setNumberOfRatings(user.getNumberOfRatings() + 1);
-                    message = "success -> " + super.getVideoTitle() + " was rated with " + grade + " by " + user.getUsername();
+                    message = rateMovie(database, movies, user);
                 } else {
                     /*
                      * check if the movie was rated
@@ -73,18 +66,7 @@ public class Rating extends Command {
                         }
                     }
                     if (movieWasRated == 0) {
-                        user.getMoviesRated().add(super.getVideoTitle());
-
-                        for (Movie movie : movies) {
-                            if(movie.getTitle().equals(super.getVideoTitle())) {
-                                movie.getRatings().add(grade);
-                                movie.setRating(movie.calculateRating());
-                                database.setActorsAverage();
-                            }
-                        }
-
-                        user.setNumberOfRatings(user.getNumberOfRatings() + 1);
-                        message = "success -> " + super.getVideoTitle() + " was rated with " + grade + " by " + user.getUsername();
+                        message = rateMovie(database, movies, user);
                     }
                 }
             } else {
@@ -92,21 +74,13 @@ public class Rating extends Command {
                  * rate a tv show season
                  */
                 int seasonNumber = action.getSeasonNumber();
-                if (user.getRatedSerials().size() == 0 || user.getRatedSerials().get(super.getVideoTitle()) == null) {
-                    ArrayList<Integer> ratedSeasons = new ArrayList<Integer>();
+                if (user.getRatedSerials().size() == 0 || user.getRatedSerials()
+                        .get(super.getVideoTitle()) == null) {
+                    ArrayList<Integer> ratedSeasons = new ArrayList<>();
                     ratedSeasons.add(seasonNumber);
                     user.getRatedSerials().put(super.getVideoTitle(), ratedSeasons);
 
-                    for (Serial serial : serials) {
-                        if (serial.getTitle().equals(super.getVideoTitle())) {
-                            serial.getSeasons().get(seasonNumber - 1).getRatings().add(grade);
-                            serial.setRating(serial.calculateRating());
-                            database.setActorsAverage();
-                        }
-                    }
-
-                    user.setNumberOfRatings(user.getNumberOfRatings() + 1);
-                    message = "success -> " + super.getVideoTitle() + " was rated with " + grade + " by " + super.getUsername();
+                    message = rateSerial(database, serials, user, seasonNumber);
                 } else {
                     /*
                      * check if the season was rated
@@ -123,16 +97,7 @@ public class Rating extends Command {
                         message = "error -> " + super.getVideoTitle() + " has been already rated";
                     } else {
                         user.getRatedSerials().get(super.getVideoTitle()).add(seasonNumber);
-                        for (Serial serial : serials) {
-                            if (serial.getTitle().equals(super.getVideoTitle())) {
-                                serial.getSeasons().get(seasonNumber - 1).getRatings().add(grade);
-                                serial.setRating(serial.calculateRating());
-                                database.setActorsAverage();
-                            }
-                        }
-
-                        user.setNumberOfRatings(user.getNumberOfRatings() + 1);
-                        message = "success -> " + super.getVideoTitle() + " was rated with " + grade + " by " + super.getUsername();
+                        message = rateSerial(database, serials, user, seasonNumber);
                     }
                 }
             }
@@ -140,6 +105,45 @@ public class Rating extends Command {
             message = "error -> " + super.getVideoTitle() + " is not seen";
         }
 
+        return message;
+    }
+
+    private String rateSerial(final Database database,
+                              final ArrayList<Serial> serials,
+                              final User user,
+                              final int seasonNumber) {
+        String message;
+        for (Serial serial : serials) {
+            if (serial.getTitle().equals(super.getVideoTitle())) {
+                serial.getSeasons().get(seasonNumber - 1).getRatings().add(grade);
+                serial.setRating(serial.calculateRating());
+                database.setActorsAverage();
+            }
+        }
+
+        user.setNumberOfRatings(user.getNumberOfRatings() + 1);
+        message = "success -> " + super.getVideoTitle()
+                + " was rated with " + grade + " by " + super.getUsername();
+        return message;
+    }
+
+    private String rateMovie(final Database database,
+                             final ArrayList<Movie> movies,
+                             final User user) {
+        String message;
+        user.getMoviesRated().add(super.getVideoTitle());
+
+        for (Movie movie : movies) {
+            if (movie.getTitle().equals(super.getVideoTitle())) {
+                movie.getRatings().add(grade);
+                movie.setRating(movie.calculateRating());
+                database.setActorsAverage();
+            }
+        }
+
+        user.setNumberOfRatings(user.getNumberOfRatings() + 1);
+        message = "success -> " + super.getVideoTitle()
+                + " was rated with " + grade + " by " + user.getUsername();
         return message;
     }
 

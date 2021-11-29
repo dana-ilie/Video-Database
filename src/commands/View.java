@@ -6,12 +6,16 @@ import user.User;
 import java.util.ArrayList;
 
 public class View extends Command {
-    public View(String username, String videoTitle) {
-        super("view", username, videoTitle);
+    public View(final String username, final String videoTitle) {
+        super(username, videoTitle);
     }
 
+    /**
+     * @param database the database
+     * @return result message
+     */
     @Override
-    public String commandAction(Database database) {
+    public String commandAction(final Database database) {
         ArrayList<User> users = database.getUsers();
         String message = super.commandAction(database);
         int nrViews = 0;
@@ -37,8 +41,9 @@ public class View extends Command {
                     nrViews = 1;
                 }
             }
-            //int nrViews = user.getHistory().get(super.getVideoTitle());
-            message = "success -> " + super.getVideoTitle() + " was viewed with total views of " + nrViews;
+
+            message = "success -> " + super.getVideoTitle()
+                    + " was viewed with total views of " + nrViews;
         }
 
         return message;

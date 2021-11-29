@@ -1,37 +1,45 @@
 package commands;
 
 import database.Database;
-import entertainment.Movie;
-import entertainment.Serial;
 import fileio.ActionInputData;
-import user.User;
-
-import java.util.ArrayList;
 
 public class Command {
-    private String commandType;
-    private String username;
-    private String videoTitle;
+    private final String username;
+    private final String videoTitle;
 
-    public Command(String type, String name, String title) {
-        this.commandType = type;
+    public Command(final String name, final String title) {
         this.username = name;
         this.videoTitle = title;
     }
 
+    /**
+     * @return username
+     */
     public String getUsername() {
         return username;
     }
 
-    public String commandAction(Database database) {
-        return new String("Command Message");
+    /**
+     * @param database ç
+     * @return result message
+     */
+    public String commandAction(final Database database) {
+        return "Command Message";
     }
 
+    /**
+     * @return command video title
+     */
     public String getVideoTitle() {
         return videoTitle;
     }
 
-    public String commandAction(Database database, ActionInputData action) {
-        return new String("Rating command message");
+    /**
+     * @param database database with all users, actors, actions, movies, serials
+     * @param action the action to be performed
+     * @return result message
+     */
+    public String commandAction(final Database database, final ActionInputData action) {
+        return "Rating command message";
     }
 }

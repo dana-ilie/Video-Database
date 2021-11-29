@@ -8,14 +8,15 @@ import commands.View;
 import database.Database;
 import entertainment.Movie;
 import entertainment.Serial;
-import fileio.*;
+import fileio.ActionInputData;
+import fileio.Input;
+import fileio.Writer;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import queries.Query;
 import recommendations.Recommendation;
 import user.User;
 
-import javax.lang.model.type.ArrayType;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +25,14 @@ import java.util.List;
 
 public class Solver {
 
-    public static JSONArray solve(Input input, Writer fileWriter, JSONArray arrayResult) {
+    /**
+     * @param input application input
+     * @param fileWriter file writer
+     * @param arrayResult JSONArray with all the results
+     */
+    public void solve(final Input input,
+                                  final Writer fileWriter,
+                                  final JSONArray arrayResult) {
         Database database = new Database(input);
         ArrayList<User> users = database.getUsers();
         ArrayList<Movie> movies = database.getMovies();
@@ -33,37 +41,48 @@ public class Solver {
         List<ActionInputData> actions = database.getActions();
 
         for (ActionInputData action : actions) {
-            if (action.getActionType().equals("command")) {
-                if (action.getType().equals("favorite")) {
-                    Command favorite = new Favorite(action.getUsername(), action.getTitle());
+            if ("command".equals(action.getActionType())) {
+                if ("favorite".equals(action.getType())) {
+                    String username = action.getUsername();
+                    String title = action.getTitle();
+                    Command favorite = new Favorite(username, title);
                     String message = favorite.commandAction(database);
+
                     try {
-                        JSONObject object = fileWriter.writeFile(action.getActionId(), "", message);
+                        int actionId = action.getActionId();
+                        JSONObject object = fileWriter.writeFile(actionId, "", message);
                         arrayResult.add(object);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                } else if (action.getType().equals("view")) {
+                } else if ("view".equals(action.getType())) {
                     Command view = new View(action.getUsername(), action.getTitle());
                     String message = view.commandAction(database);
+
                     try {
-                        JSONObject object = fileWriter.writeFile(action.getActionId(), "", message);
+                        int actionId = action.getActionId();
+                        JSONObject object = fileWriter.writeFile(actionId, "", message);
                         arrayResult.add(object);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                } else if (action.getType().equals("rating")) {
-                    Command rating = new Rating(action.getUsername(), action.getTitle(), action.getGrade());
+                } else if ("rating".equals(action.getType())) {
+                    String username = action.getUsername();
+                    String title = action.getTitle();
+                    Double grade = action.getGrade();
+                    Command rating = new Rating(username, title, grade);
                     String message = rating.commandAction(database, action);
                     database.setActorsAverage();
+
                     try {
-                        JSONObject object = fileWriter.writeFile(action.getActionId(), "", message);
+                        int actionId = action.getActionId();
+                        JSONObject object = fileWriter.writeFile(actionId, "", message);
                         arrayResult.add(object);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
-            } else if (action.getActionType().equals("query")) {
+            } else if ("query".equals(action.getActionType())) {
                 String objectType = action.getObjectType();
                 int number = action.getNumber();
                 String sortType = action.getSortType();
@@ -72,28 +91,40 @@ public class Solver {
 
                 Query query = new Query(objectType, number, sortType, filters, criteria);
                 String message = query.queryAction(users, movies, serials, actors);
+
                 try {
-                    JSONObject object = fileWriter.writeFile(action.getActionId(), "", message);
+                    int actionId = action.getActionId();
+                    JSONObject object = fileWriter.writeFile(actionId, "", message);
                     arrayResult.add(object);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-            } else if (action.getActionType().equals("recommendation")) {
+            } else if ("recommendation".equals(action.getActionType())) {
                 String type = action.getType();
                 String username = action.getUsername();
                 String genre = action.getGenre();
 
                 Recommendation recommendation = new Recommendation(type, username, genre);
                 String message = recommendation.recommend(users, movies, serials);
+
                 try {
-                    JSONObject object = fileWriter.writeFile(action.getActionId(), "", message);
+                    int actionId = action.getActionId();
+                    JSONObject object = fileWriter.writeFile(actionId, "", message);
+                    arrayResult.add(object);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                String message = "default message";
+
+                try {
+                    int actionId = action.getActionId();
+                    JSONObject object = fileWriter.writeFile(actionId, "", message);
                     arrayResult.add(object);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         }
-
-        return arrayResult;
     }
 }

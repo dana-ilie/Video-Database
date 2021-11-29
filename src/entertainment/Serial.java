@@ -4,17 +4,21 @@ import fileio.SerialInputData;
 
 import java.util.ArrayList;
 
-public class Serial extends Video{
-    private int numberOfSeasons;
-    private ArrayList<Season> seasons;
+public class Serial extends Video {
+    private final int numberOfSeasons;
+    private final ArrayList<Season> seasons;
 
-    public Serial(SerialInputData serialData) {
-        super(serialData.getTitle(), serialData.getYear(), serialData.getCast(), serialData.getGenres());
+    public Serial(final SerialInputData serialData) {
+        super(serialData.getTitle(), serialData.getYear(),
+                serialData.getCast(), serialData.getGenres());
         this.numberOfSeasons = serialData.getNumberSeason();
         this.seasons = serialData.getSeasons();
-        super.totalDuration = calculateDuration();
+        super.setTotalDuration(calculateDuration());
     }
 
+    /**
+     * @return total duration of the serial(sum of seasons durations)
+     */
     public int calculateDuration() {
         int duration = 0;
         for (Season season : seasons) {
@@ -24,6 +28,9 @@ public class Serial extends Video{
         return duration;
     }
 
+    /**
+     * @return the rating of the serial
+     */
     public Double calculateRating() {
         Double sum = 0.0;
 
@@ -36,10 +43,9 @@ public class Serial extends Video{
         return sum / numberOfSeasons;
     }
 
-    public int getNumberOfSeasons() {
-        return numberOfSeasons;
-    }
-
+    /**
+     * @return list of seasons
+     */
     public ArrayList<Season> getSeasons() {
         return seasons;
     }

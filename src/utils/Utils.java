@@ -89,7 +89,7 @@ public final class Utils {
     /**
      * Transforms an array of JSON's into a map
      * @param jsonActors array of JSONs
-     * @return a map with ActorsAwardsa as key and Integer as value
+     * @return a map with Actors Awards as key and Integer as value
      */
     public static Map<ActorsAwards, Integer> convertAwards(final JSONArray jsonActors) {
         Map<ActorsAwards, Integer> awards = new LinkedHashMap<>();

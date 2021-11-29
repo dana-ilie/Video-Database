@@ -4,9 +4,17 @@ import user.User;
 
 import java.util.Comparator;
 
+/**
+ *  * Users number of rating comparator(descending order)
+ */
 public class UserSorterDesc implements Comparator<User> {
+    /**
+     * @param o1 first user
+     * @param o2 second user
+     * @return result of comparison
+     */
     @Override
-    public int compare(User o1, User o2) {
+    public int compare(final User o1, final User o2) {
         if (o2.getNumberOfRatings() - o1.getNumberOfRatings() != 0) {
             return o2.getNumberOfRatings() - o1.getNumberOfRatings();
         }

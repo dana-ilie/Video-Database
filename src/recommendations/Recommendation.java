@@ -6,7 +6,11 @@ import entertainment.Video;
 import sort.VideoRatingSorterAsc;
 import user.User;
 
-import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.Comparator;
 
 import static utils.Utils.stringToGenre;
 
@@ -15,15 +19,15 @@ public class Recommendation {
     private final String username;
     private final String genre;
 
-    public Recommendation(String type, String username, String genre) {
+    public Recommendation(final String type, final String username, final String genre) {
         this.type = type;
         this.username = username;
         this.genre = genre;
     }
 
-    private String standardRecommendation(ArrayList<User> users,
-                                          ArrayList<Movie> movies,
-                                          ArrayList<Serial> serials) {
+    private String standardRecommendation(final ArrayList<User> users,
+                                          final ArrayList<Movie> movies,
+                                          final ArrayList<Serial> serials) {
         String videoName = "standard";
 
         /*
@@ -59,22 +63,22 @@ public class Recommendation {
         return videoName;
     }
 
-    private String bestUnseenRecommendation(ArrayList<User> users,
-                                            ArrayList<Movie> movies,
-                                            ArrayList<Serial> serials) {
+    private String bestUnseenRecommendation(final ArrayList<User> users,
+                                            final ArrayList<Movie> movies,
+                                            final ArrayList<Serial> serials) {
         String videoName = "bestUnseen";
+        List<Video> allVideos = new ArrayList<>();
         User user = new User();
+
+        allVideos.addAll(movies);
+        allVideos.addAll(serials);
+        allVideos.sort((o1, o2) -> Double.compare(o2.getRating(), o1.getRating()));
+
         for (User u : users) {
             if (u.getUsername().equals(username)) {
                 user = u;
             }
         }
-
-        List<Video> allVideos = new ArrayList<>();
-        allVideos.addAll(movies);
-        allVideos.addAll(serials);
-
-        allVideos.sort((o1, o2) -> Double.compare(o2.getRating(), o1.getRating()));
 
         for (Video video : allVideos) {
             /*
@@ -90,9 +94,9 @@ public class Recommendation {
         return videoName;
     }
 
-    private String popularRecommendation(ArrayList<User> users,
-                                         ArrayList<Movie> movies,
-                                         ArrayList<Serial> serials) {
+    private String popularRecommendation(final ArrayList<User> users,
+                                         final ArrayList<Movie> movies,
+                                         final ArrayList<Serial> serials) {
         String videoName = "popular";
         Map<String, Integer> genreViews = new LinkedHashMap<>();
         User user = new User();
@@ -106,13 +110,13 @@ public class Recommendation {
          * calculate popularity of all genres
          */
         for (Movie movie : movies) {
-            for (String genre : movie.getGenres()) {
-                genreViews.put(genre, movie.getViews());
+            for (String movieGenre : movie.getGenres()) {
+                genreViews.put(movieGenre, movie.getViews());
             }
         }
         for (Serial serial : serials) {
-            for (String genre : serial.getGenres()) {
-                genreViews.merge(genre, serial.getViews(), Integer::sum);
+            for (String serialGenre : serial.getGenres()) {
+                genreViews.merge(serialGenre, serial.getViews(), Integer::sum);
             }
         }
 
@@ -123,15 +127,15 @@ public class Recommendation {
         genreViews.entrySet()
                 .stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                .forEachOrdered(x-> sortedGenres.put(x.getKey(), x.getValue()));
+                .forEachOrdered(x -> sortedGenres.put(x.getKey(), x.getValue()));
 
         for (Map.Entry<String, Integer> entry : sortedGenres.entrySet()) {
             /*
              * find a video with the most popular genre
              */
             for (Movie movie: movies) {
-                for (String genre : movie.getGenres()) {
-                    if (genre.equals(entry.getKey())) {
+                for (String movieGenre : movie.getGenres()) {
+                    if (movieGenre.equals(entry.getKey())) {
                         /*
                          * check if the user has not seen the video
                          */
@@ -143,8 +147,8 @@ public class Recommendation {
                 }
             }
             for (Serial serial : serials) {
-                for (String genre : serial.getGenres()) {
-                    if (genre.equals(entry.getKey())) {
+                for (String serialGenre : serial.getGenres()) {
+                    if (serialGenre.equals(entry.getKey())) {
                         if (user.getHistory().get(serial.getTitle()) == null) {
                             videoName = serial.getTitle();
                             return videoName;
@@ -157,9 +161,9 @@ public class Recommendation {
         return videoName;
     }
 
-    private String favoriteRecommendation(ArrayList<User> users,
-                                          ArrayList<Movie> movies,
-                                          ArrayList<Serial> serials) {
+    private String favoriteRecommendation(final ArrayList<User> users,
+                                          final ArrayList<Movie> movies,
+                                          final ArrayList<Serial> serials) {
         String videoName = "favorite";
         Map<String, Integer> favoriteVideos = new LinkedHashMap<>();
         User user = new User();
@@ -169,14 +173,13 @@ public class Recommendation {
             }
         }
 
-        /*
-         * calculate how many times each video was added to favorites
-         */
-
         List<Video> allVideos = new ArrayList<>();
         allVideos.addAll(movies);
         allVideos.addAll(serials);
 
+        /*
+         * calculate how many times each video was added to favorites
+         */
         for (Video video : allVideos) {
             /*
              * check if video is in a favorite list
@@ -195,7 +198,7 @@ public class Recommendation {
         favoriteVideos.entrySet()
                 .stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                .forEachOrdered(x-> sortedVideos.put(x.getKey(), x.getValue()));
+                .forEachOrdered(x -> sortedVideos.put(x.getKey(), x.getValue()));
 
         for (Map.Entry<String, Integer> entry : sortedVideos.entrySet()) {
             if (user.getHistory().get(entry.getKey()) == null) {
@@ -207,9 +210,9 @@ public class Recommendation {
         return videoName;
     }
 
-    private List<Video> searchRecommendation(ArrayList<User> users,
-                                             ArrayList<Movie> movies,
-                                             ArrayList<Serial> serials) {
+    private List<Video> searchRecommendation(final ArrayList<User> users,
+                                             final ArrayList<Movie> movies,
+                                             final ArrayList<Serial> serials) {
         List<Video> allVideos = new ArrayList<>();
         List<Video> unseenVideos = new ArrayList<>();
         User user = new User();
@@ -248,9 +251,16 @@ public class Recommendation {
         return unseenVideos;
     }
 
-    public String recommend(ArrayList<User> users, ArrayList<Movie> movies,
-                            ArrayList<Serial> serials) {
-        String message = "";
+    /**
+     * @param users list of users
+     * @param movies list of movies
+     * @param serials list of serials
+     * @return recommend result message
+     */
+    public String recommend(final ArrayList<User> users,
+                            final ArrayList<Movie> movies,
+                            final ArrayList<Serial> serials) {
+        String message;
 
         if (type.equals("standard")) {
             String videoName = standardRecommendation(users, movies, serials);
@@ -261,7 +271,7 @@ public class Recommendation {
                 message = "StandardRecommendation result: " + videoName;
             }
         } else if (type.equals("best_unseen")) {
-            String videoName = bestUnseenRecommendation(users,movies,serials);
+            String videoName = bestUnseenRecommendation(users, movies, serials);
 
             if (videoName.equals("bestUnseen")) {
                 message = "BestRatedUnseenRecommendation cannot be applied!";
@@ -276,54 +286,59 @@ public class Recommendation {
                 }
             }
 
-            if (type.equals("popular")) {
-                if (user.getSubscriptionType().equals("PREMIUM")) {
-                    String videoName = popularRecommendation(users, movies, serials);
+            switch (type) {
+                case "popular":
+                    if (user.getSubscriptionType().equals("PREMIUM")) {
+                        String videoName = popularRecommendation(users, movies, serials);
 
-                    if (videoName.equals("popular")) {
-                        message = "PopularRecommendation cannot be applied!";
-                    } else {
-                        message = "PopularRecommendation result: " + videoName;
-                    }
-                } else {
-                    message = "PopularRecommendation cannot be applied!";
-                }
-            } else if (type.equals("favorite")) {
-                if (user.getSubscriptionType().equals("PREMIUM")) {
-                    String videoName = favoriteRecommendation(users, movies, serials);
-                    if (videoName.equals("favorite")) {
-                        message = "FavoriteRecommendation cannot be applied!";
-                    } else {
-                        message = "FavoriteRecommendation result: " + videoName;
-                    }
-                } else {
-                    message = "FavoriteRecommendation cannot be applied!";
-                }
-            } else if(type.equals("search")) {
-                if (user.getSubscriptionType().equals("PREMIUM")) {
-                    if (stringToGenre(genre) != null) {
-                        List<Video> videos = searchRecommendation(users, movies, serials);
-                        List<String> videoNames = new ArrayList<>();
-
-                        for (Video video : videos) {
-                            videoNames.add(video.getTitle());
+                        if (videoName.equals("popular")) {
+                            message = "PopularRecommendation cannot be applied!";
+                        } else {
+                            message = "PopularRecommendation result: " + videoName;
                         }
+                    } else {
+                        message = "PopularRecommendation cannot be applied!";
+                    }
+                    break;
+                case "favorite":
+                    if (user.getSubscriptionType().equals("PREMIUM")) {
+                        String videoName = favoriteRecommendation(users, movies, serials);
+                        if (videoName.equals("favorite")) {
+                            message = "FavoriteRecommendation cannot be applied!";
+                        } else {
+                            message = "FavoriteRecommendation result: " + videoName;
+                        }
+                    } else {
+                        message = "FavoriteRecommendation cannot be applied!";
+                    }
+                    break;
+                case "search":
+                    if (user.getSubscriptionType().equals("PREMIUM")) {
+                        if (stringToGenre(genre) != null) {
+                            List<Video> videos = searchRecommendation(users, movies, serials);
+                            List<String> videoNames = new ArrayList<>();
 
-                        if (videoNames.size() != 0) {
-                            message = "SearchRecommendation result: " + videoNames;
+                            for (Video video : videos) {
+                                videoNames.add(video.getTitle());
+                            }
+
+                            if (videoNames.size() != 0) {
+                                message = "SearchRecommendation result: " + videoNames;
+                            } else {
+                                message = "SearchRecommendation cannot be applied!";
+                            }
                         } else {
                             message = "SearchRecommendation cannot be applied!";
                         }
+
                     } else {
                         message = "SearchRecommendation cannot be applied!";
                     }
-
-                } else {
-                    message = "SearchRecommendation cannot be applied!";
-                }
+                    break;
+                default:
+                    message = "";
             }
         }
-
 
         return message;
     }

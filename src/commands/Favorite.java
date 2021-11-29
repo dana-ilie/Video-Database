@@ -8,11 +8,15 @@ import java.util.function.Predicate;
 
 public class Favorite extends Command {
 
-    public Favorite(String username, String videoTitle) {
-        super("favorite", username, videoTitle);
+    public Favorite(final String username, final String videoTitle) {
+        super(username, videoTitle);
     }
 
-    public String commandAction(Database database) {
+    /**
+     * @param database the database
+     * @return action result message
+     */
+    public String commandAction(final Database database) {
         ArrayList<User> users = database.getUsers();
         String message = "";
 
@@ -28,7 +32,8 @@ public class Favorite extends Command {
                     Predicate<String> isFav = s -> s.equals(super.getVideoTitle());
                     boolean isInFavorite = user.getFavoriteMovies().stream().anyMatch(isFav);
                     if (isInFavorite) {
-                        message = "error -> " + super.getVideoTitle() + " is already in favourite list";
+                        message = "error -> " + super.getVideoTitle()
+                                + " is already in favourite list";
                     } else {
                         user.getFavoriteMovies().add(super.getVideoTitle());
                         database.incVideoFavoriteTimes(super.getVideoTitle());
