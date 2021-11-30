@@ -1,38 +1,78 @@
+# VideosDB
+
+## About
+
 Object Oriented Programming Course
-Homework - VideosDB
 
 November 2021
 
-# Info
 https://ocw.cs.pub.ro/courses/poo-ca-cd/teme/tema
 
-# About the code
+Student: Ilie Dana Maria, 324CA
 
-We provide the input tests, the logic that parses them and the checker that runs them.
+## Run tests
 
-* test_db - contains the tests in JSON format
-* src
-   * checker - the checker's sources including the checkstyle necessary files, not to be modified
-   * fileio - classes for parsing the input files, not to be modified
-   * common, utils
-        * contain utility classes with constants and static methods
-        * you can add your own functionality in the existing classes or add new classes as well
-   * actor
-        * contains an enum for the types of awards an actor can have - do not modify it
-        * you can add here your actor related classes
-   * entertainment
-        * contains an enum for the supported video genres - do not modify it
-        * class for representing a Season of a tv show - do not modify it
-        * you can add here your entertainment related classes
+Class Main
+    * runs checker on implementation
+    * runs checkstyle
 
-We encourage you to organize your implementation in packages based on the functionality their classes offer. Try to keep
-your code modular, readable and documented.
+Class Test#main with the name of the input file
+    * runs the solution on the input from input file
+    * writes result to the out.txt file
+    
 
-# Testing
+## Implementation
 
-The Main class runs the checker on your implementation. Add the entry point to your implementation in it.
+The Solver#solve is the primary method of the implementation as it manages the
+input and returns a JSONArray with the result of all actions. Based on the
+input, a database containing all the users, movies, tv shows, actors and actions
+is created. For each action, a new JSONObject with the result is added to the
+JSONArray.
 
-Run Main to test your implementation from the IDE or from command line.
+### Commands flow
 
-Run the main method from Test class with the name of the input file from the command line and the result will be written
-to the out.txt file. Thus, you can compare this result with ref.
+To add a video to a user's list of favorite videos, I search for the user in
+the database, then check if the user has seen the video. If he has, the video
+is added to the list and the number of times that particular video has been
+added to a favorites list is incremented.
+
+For the view command, if the user has already seen the video, the number of
+times the user has seen the video is incremented, otherwise the video is
+seen for the first time and therefore added to the user's view history.
+
+When rating a video, the type of video (movie or tv show) is considered, as
+a tv show has its every season rated, unlike a movie that has a single rating.
+To avoid having a user rate a video multiple times, each user has a list of
+movies rated and a map(key = tv show, value = list of seasons rated) of tv shows rated.
+
+### Queries flow
+
+For actors and videos queries, previous filtering of the actors or videos is
+required. In order to do that, Query#filterActors and Query#filterVideo methods
+are used. After the filtering part, the actors and videos are sorted by the 
+specified criteria. The sorting is made using the sorting methods from the
+Sorter class in package "sort".
+
+For users queries, there is no need for previous filtering. 
+
+### Recommendations flow
+
+A standard recommendation searches in the database and returns the first unseen video by the user.
+
+A best unseen recommendation searches in the database and returns the best
+video unseen by the user. In order to do that, the videos are sorted by rating
+in a descending order, then the first unseen video is returned.
+
+A popular recommendation returns the first unseen video by the user in the most
+popular genre. In order to do that, the popularity of each genre is calculated,
+then the genres are sorted by the popularity in descending order.
+
+A favourite recommendation returns the most added to favourites list video unseen
+by the user. To do that, the number of times each video was added to a list of
+favourite videos is calculated, then the videos are sorted by that number in
+descending order.
+
+A search recommendation returns all the videos unseen by the user in specific
+genre. First, the videos are filtered by that genre, then are sorted by rating
+in ascending order.
+

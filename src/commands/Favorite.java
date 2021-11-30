@@ -48,6 +48,5 @@ public class Favorite extends Command {
         }
 
         return message;
-
     }
 }

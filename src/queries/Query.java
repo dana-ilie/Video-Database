@@ -37,10 +37,14 @@ public class Query {
     private ArrayList<Actor> filterActors(final ArrayList<Actor> actors) {
         ArrayList<Actor> filteredActors = new ArrayList<>();
 
-        // if awards filter exists => filter actors by awards
+        /*
+         * if awards filter exists => filter actors by awards
+         */
         if (filters.get(AWARDS_FILTER_NUM) != null && filters.get(AWARDS_FILTER_NUM).size() != 0) {
             for (Actor actor : actors) {
-                // check if actor has all awards
+                /*
+                 * check if the actor has all awards
+                 */
                 int actorHasAllAwards = 1;
                 for (String award : filters.get(AWARDS_FILTER_NUM)) {
                     if (actor.getAwards().get(stringToAwards(award)) == null) {
@@ -53,10 +57,14 @@ public class Query {
             }
         }
 
-        // if words filter exists => filter actors by words in career description
+        /*
+         * if words filter exists => filter actors by words in career description
+         */
         if (filters.get(WORDS_FILTER_NUM) != null && filters.get(WORDS_FILTER_NUM).size() != 0) {
             for (Actor actor : actors) {
-                // check if actor description has all words
+                /*
+                 * check if actor description has all words
+                 */
                 int descriptionHasAllWords = 1;
                 for (String word : filters.get(WORDS_FILTER_NUM)) {
                     String word1 = " " + word + " ";
@@ -123,15 +131,19 @@ public class Query {
                 return has;
             };
 
+            /*
+             * if year filter exists => filter the videos by the years
+             */
             if (filters.get(0) != null && filters.get(0).get(0) != null) {
                 filteredVideos = filteredVideos.stream().filter(videoIsFromYears).toList();
             }
-
+            /*
+             * if genre filter exists => filter the videos by genres
+             */
             if (filters.get(1) != null && filters.get(1).get(0) != null) {
                 filteredVideos = filteredVideos.stream().filter(hasGenre).toList();
             }
         }
-
 
         return filteredVideos;
     }
